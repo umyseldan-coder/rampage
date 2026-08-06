@@ -1,33 +1,34 @@
-[app]
-title = Rampage
-package.name = rampage
-package.domain = com.rampage
+name: Build APK
 
-version = 1.0.0
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
-source.exclude_exts = spec,pyc,pyo,pyd
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-application.fullscreen = 0
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install python3-pip openjdk-17-jdk unzip -y
+          pip3 install buildozer cython
 
-requirements = python3,kivy,requests,android
+      - name: Accept Android SDK licenses
+        run: |
+          yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+        env:
+          ANDROID_HOME: /usr/local/android-sdk
 
-orientation = portrait
-fullscreen = 0
+      - name: Build APK
+        run: |
+          buildozer android debug
 
-android.minapi = 21
-android.maxapi = 33
-android.targetapi = 31
-android.api = 31
-
-android.permissions = INTERNET,CAMERA,RECORD_AUDIO,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,VIBRATE,FLASHLIGHT
-
-android.wakelock = True
-android.allow_backup = True
-
-[buildozer]
-log_level = 2
-warn_on_root = 0
-build_dir = .buildozer
-bin_dir = bin
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rampage
+          path: bin/*.apk
