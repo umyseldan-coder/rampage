@@ -4,8 +4,6 @@ package.name = rampage
 package.domain = com.rampage
 
 version = 1.0.0
-version.regex = __version__ = ['"](.*)['"]
-version.filename = %(source.dir)s/main.py
 
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
